@@ -1,0 +1,705 @@
+{layout name="public:layout"}
+<style>
+    /* table 样式 */
+    table {
+        border-top: 1px solid #ccc;
+        border-left: 1px solid #ccc;
+    }
+    table td,
+    table th {
+        border-bottom: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        padding: 3px 5px;
+    }
+    table th {
+        border-bottom: 2px solid #ccc;
+        text-align: center;
+    }
+
+    /* blockquote 样式 */
+    blockquote {
+        display: block;
+        border-left: 8px solid #d0e5f2;
+        padding: 5px 10px;
+        margin: 10px 0;
+        line-height: 1.4;
+        font-size: 100%;
+        background-color: #f1f1f1;
+    }
+
+    /* code 样式 */
+    code {
+        display: inline-block;
+        *display: inline;
+        *zoom: 1;
+        background-color: #f1f1f1;
+        border-radius: 3px;
+        padding: 3px 5px;
+        margin: 0 3px;
+    }
+    pre code {
+        display: block;
+    }
+
+    /* ul ol 样式 */
+    ul, ol {
+        margin: 10px 0 10px 20px;
+    }
+</style>
+<!-- 警告框 -->
+<div class="alert fade" style="z-index: 3; position: fixed; top: 200px; left: 50%; width: 400px; margin-left: -200px">
+    <div class="alertMsg text-center"></div>
+</div>
+
+<h3 class="text-success bg-success" style="padding: 10px;">文章列表</h3>
+<div  style="padding: 10px 0;">
+
+    <form class="form-inline" style="display: inline-block" method="post" action="{:url('article/goArticleListPage')}">
+        <div class="form-group">
+            <input type="text" name="keywords" class="form-control" placeholder="请输入文章标题" value="{$keywords}">
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-default btn-primary">查询</button>
+        </div>
+    </form>
+
+    <form class="form-inline" style="display: inline-block; margin-left: 20px;" method="post" action="{:url('article/goArticleListPage')}">
+        <div class="form-group">
+            <select name="cate_id" class="form-control">
+                <option value="">选择栏目</option>
+                {volist name="cateList" id="cate"}
+                <option value="{$cate.id}"
+                        {eq name="cateId" value="$cate.id"}selected{/eq}>
+                {$cate.name}
+                </option>
+                {/volist}
+            </select>
+            <select name="author_id" class="form-control">
+                <option value="">选择作者</option>
+                {volist name="authorList" id="author"}
+                <option value="{$author.id}"
+                        {eq name="authorId" value="$author.id"}selected{/eq}>
+                {$author.name}
+                </option>
+                {/volist}
+            </select>
+            <button type="submit" class="btn btn-default btn-primary">查询</button>
+        </div>
+    </form>
+</div>
+
+<table class="table table-default table-hover text-center table-bordered">
+    <tr>
+        <td>#</td>
+        <td>标题</td>
+        <td>封面</td>
+        <td>栏目</td>
+        <td>作者</td>
+        <td>内容</td>
+        <td>时间</td>
+        <td>状态</td>
+        <td>草稿</td>
+        <td>操作</td>
+    </tr>
+    {volist name="artList" id="art" empty="$empty"}
+    <tr>
+        <td>{$art.id}</td>
+        <td>{$art.title}</td>
+        <td><img src="{$art.avatar}" height="50"/></td>
+        <td>{$art.cate_id|getArtCateName}</td>
+        <td>{$art.author_id|getArtAuthorName}</td>
+        <td>
+            {$art.content|filterArtContent}
+        </td>
+        <td>{$art.update_time|date='Y-m-d H:i'}</td>
+        <td>
+            {eq name="$art.status" value="1"}
+            <span class="text-primary">已启用</span>
+            <button
+                artId="{$art.id}"
+                artStatus="0"
+                class="btn btn-danger btn-xs stopUseBtn">
+                禁用
+            </button>
+            {else/}
+            <span class="text-danger">已禁用</span>
+            <button
+                artId="{$art.id}"
+                artStatus="1"
+                class="btn btn-primary btn-xs recoverUseBtn">
+                启用
+            </button>
+            {/eq}
+        </td>
+        <td>
+            {eq name="$art.is_draft" value="1"}
+            <span class="text-danger">是</span>
+            <button artObj="{$art}" class="btn btn-primary btn-xs modifyArtBtn">
+                继续编写
+            </button>
+            <button artId="{$art.id}" class="btn btn-success btn-xs submitNormalBtn">
+                发表
+            </button>
+            {else/}
+            <span class="text-primary">否</span>
+            <button artId="{$art.id}" class="btn btn-primary btn-xs submitDraftBtn">
+                转为草稿
+            </button>
+            {/eq}
+        </td>
+        <td>
+            <button
+                    class="btn btn-info btn-xs detailArtBtn"
+                    artContent="{$art.content}"
+                    title="详情">
+                <i class="iconfont icon-xiangqing"></i>
+            </button>
+            <button
+                class="btn btn-primary btn-xs modifyArtBtn"
+                artObj="{$art}"
+                title="修改">
+                <i class="iconfont icon-xiugai"></i>
+            </button>
+            <button
+                class="btn btn-danger btn-xs deleArtBtn"
+                artId="{$art.id}"
+                title="删除">
+                <i class="iconfont icon-shanchu"></i>
+            </button>
+        </td>
+    </tr>
+    {/volist}
+</table>
+
+<div style="text-align: center">
+    {$artList|raw}
+</div>
+
+<!-- 增加用户按钮 -->
+<a class="btn btn-primary" href="{:url('article/goArticleAddPage')}">新增文章</a>
+
+<!-- 详情模态框 -->
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">详情</h4>
+            </div>
+            <div class="modal-body" id="content"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除模态框 -->
+<div id="deleGoodsModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">删除</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    删除将使该栏目信息从数据库中被彻底删除当前且不可恢复
+                </div>
+                <form class="form-horizontal" action="" method="" id="deleCateForm">
+                    <input type="hidden" name="adminId" value="{$Think.session.admin_id}">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">管理员密码:</label>
+                        <div class="col-sm-7">
+                            <input name="adminPsw" type="password" class="form-control" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-6">
+                            <button type="button" class="btn btn-primary" id="deleCateBtn1">确定</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 修改模态框 -->
+<div class="modal fade" id="modifyModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">修改文章</h4>
+            </div>
+            <div class="modal-body" id="modifyConent">
+                <form class="form-horizontal" id="artModifyForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">标题:</label>
+                        <div class="col-sm-5">
+                            <input name="title" type="text" class="form-control" placeholder="请输入标题">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">封面:</label>
+                        <div class="col-sm-5">
+                            <button type="button" id="imageInput" class="btn btn-default">上传封面图片</button>
+                            <p id="helpText" class="help-block">最多上传1张图片</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">栏目:</label>
+                        <div class="col-sm-2">
+                            <select id="cate_id" class="form-control">
+                                <option value="">请选择栏目</option>
+                                {volist name="cateList" id="cate"}
+                                <option value="{$cate.id}">{$cate.name}</option>
+                                {/volist}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">作者:</label>
+                        <div class="col-sm-2">
+                            <select id="author_id" class="form-control">
+                                <option value="">请选择作者</option>
+                                {volist name="authorList" id="author"}
+                                <option value="{$author.id}">{$author.name}</option>
+                                {/volist}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">内容:</label>
+                        <div class="col-sm-10">
+                            <div id="editorHead" class="toolbar" style="border: 1px solid #ccc"></div>
+                            <div style="padding: 5px 0; color: #ccc"></div>
+                            <div id="editorBody" class="text" style="border: 1px solid #ccc; min-height: 600px;">
+                                <p class="text-danger">注意：一次最多上传 5 张图片</p>
+                            </div>
+                        </div>
+                        <script type="text/javascript">
+                            var E = window.wangEditor;
+                            var editor = new E('#editorHead', '#editorBody');
+                            // 配置服务器端地址
+                            editor.customConfig.uploadImgServer = "{:url('/admin/editor/upload')}";
+                            // 将图片大小限制为 3M
+                            editor.customConfig.uploadImgMaxSize = 3 * 1024 * 1024;
+                            // 限制一次最多上传 5 张图片
+                            editor.customConfig.uploadImgMaxLength = 5;
+                            // 配置编辑区域的 z-index
+                            editor.customConfig.zIndex = 1;
+                            editor.create();
+                        </script>
+                    </div>
+                    <input type="hidden" name="avatar" value="">
+                    <input type="hidden" name="art_id" value="">
+                    <input type="hidden" name="create_person_id" value="{$Think.session.admin_id}">
+                    <input type="hidden" name="update_person_id" value="{$Think.session.admin_id}">
+                    <div class="form-group">
+                        <div class="col-sm-offset-1 col-sm-10">
+                            <button type="button" class="btn btn-primary" id="saveDraftBtn">存为草稿</button>
+                            <button type="button" class="btn btn-success" id="modifyBtn">发表文章</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 上传图片模态框 -->
+<div class="modal fade" id="imageInputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">上传封面图片</h4>
+            </div>
+            <div class="modal-body">
+                <form enctype="multipart/form-data">
+                    <input id="avatar" type="file" multiple>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除文章模态框 -->
+<div id="deleArtModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">删除作者信息</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    删除将使该作者信息从数据库中被彻底删除当前且不可恢复
+                </div>
+                <form class="form-horizontal" action="" method="" id="deleArtForm">
+                    <input type="hidden" name="adminId" value="{$Think.session.admin_id}">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">管理员密码:</label>
+                        <div class="col-sm-7">
+                            <input name="adminPsw" type="password" class="form-control" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-6">
+                            <button type="button" class="btn btn-primary" id="deleArtBtn">确定</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 封装警告框方法
+    function showAlert(alertStyle, alertText, alertTime) {
+        $('.alert').css('display', 'block');
+        $('.alert').addClass(alertStyle);
+        $('.alertMsg').text(alertText);
+        $('.alert').removeClass('fade').addClass('in');
+
+        return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+                $('.alert').addClass('fade').removeClass('in');
+                $('.alert').css('display', 'none');
+                resolve();
+            }, alertTime)
+        })
+    }
+    // 封装图片上传方法
+    function initFileInput(controlName, uploadUrl) {
+        var control = $('#' + controlName);
+        control.fileinput({
+            language: 'zh', // 语言
+            uploadUrl: uploadUrl, // 上传文件名
+            allowedFileExtensions: ['jpg', 'jpeg', 'png', 'gif'], // 可上传图片后缀名
+            browseClass: 'btn btn-success',
+            previewFileIcon: '<i class="glyphicon glyphicon-file"></i>',
+            maxFileCount: 4, // 最大上传图片数
+            theme: 'explorer',
+            overwriteInitial: false,
+            initialPreviewAsData: true,
+            initialPreview: [],
+            initialPreviewConfig: {
+                caption: controlName,
+                width: '120px',
+                url: uploadUrl,
+                key: 101,
+                success: function () {
+
+                }
+            }
+        })
+    }
+
+    $(function () {
+        var artId = 0;
+        initFileInput('avatar', "{:url('/base/upload')}");
+        // 查看文章详情
+        $('.detailArtBtn').on('click', function () {
+            var artContent = $(this).attr('artContent');
+            $('#content').html(artContent);
+            $('#detailModal').modal('show');
+        })
+
+        // 上传图片弹窗
+        $('#imageInput').on('click', function () {
+            $('#imageInputModal').modal('show');
+        })
+
+        // 内层模态框关闭后给外层模态框增加modal-open,防止bug
+        $('#imageInputModal').on('hidden.bs.modal', function (e) {
+            $('body').addClass('modal-open')
+        })
+        // 监听上传成功后处理
+        $("#avatar").on("fileuploaded", function(event, data, previewId, index) {
+            $('#imageInputModal').modal('hide');
+            if (0 === data.response.errno) {
+                showAlert('alert-success', '图片上传成功', 1000).then(function () {
+                    $("input[name='avatar']").val(data.response.data);
+                    $('#helpText').html(`已上传封面图片,封面图片为：<img height="50" src="${data.response.data}" />`);
+                });
+            } else {
+                showAlert('alert-success', '图片上传失败，请检查', 1000);
+            }
+        });
+
+        // 修改文章弹窗
+        $('.modifyArtBtn').on('click', function () {
+            var artJson = JSON.parse($(this).attr('artObj'));
+            if (artJson.avatar && '' !== artJson.avatar) {
+                $("input[name='avatar']").val(artJson.avatar);
+                $('#helpText').html(`已上传封面图片,封面图片为：<img height="50" src="${artJson.avatar}" />`);
+            } else {
+                $('#helpText').html("未上传封面图片")
+            }
+            $("#artModifyForm input[name='art_id']").val(artJson.id)
+            $("#artModifyForm input[name='title']").val(artJson.title)
+            $("#artModifyForm #cate_id option[value='"+(artJson.cate_id)+"']").attr("selected","selected")
+            $("#artModifyForm #author_id option[value='"+(artJson.author_id)+"']").attr("selected","selected")
+            editor.txt.html(artJson.content)
+
+            $('#modifyModal').modal('show');
+        })
+
+        // 发表文章
+        $('#modifyBtn').on('click', function () {
+            var formContent = new FormData();
+            formContent.append('id', $("#artModifyForm input[name='art_id']").val());
+            formContent.append('title', $("#artModifyForm input[name='title']").val());
+            formContent.append('avatar', $("input[name='avatar']").val());
+            formContent.append('cate_id', $('#artModifyForm #cate_id option:selected').val());
+            formContent.append('author_id', $('#artModifyForm #author_id option:selected').val());
+            formContent.append('content', editor.txt.html());
+            formContent.append('is_draft', '0');
+            formContent.append('create_person_id', $("#artModifyForm input[name='create_person_id']").val());
+            formContent.append('update_person_id', $("#artModifyForm input[name='update_person_id']").val());
+
+            $('#modifyModal').modal('hide');
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/saveArticle')}",
+                processData: false,
+                contentType: false,
+                data: formContent,
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            console.log('1')
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            console.log('-1')
+                            showAlert('alert-danger', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 1000)
+                            break;
+                    }
+                }
+
+            })
+        })
+
+        // 草稿
+        $('#saveDraftBtn').on('click', function () {
+            var formContent = new FormData();
+            formContent.append('id', $("#artModifyForm input[name='art_id']").val());
+            formContent.append('title', $("#artModifyForm input[name='title']").val());
+            formContent.append('avatar', $("input[name='avatar']").val());
+            formContent.append('cate_id', $('#artModifyForm #cate_id option:selected').val());
+            formContent.append('author_id', $('#artModifyForm #author_id option:selected').val());
+            formContent.append('content', editor.txt.html());
+            formContent.append('is_draft', '1');
+            formContent.append('create_person_id', $("#artModifyForm input[name='create_person_id']").val());
+            formContent.append('update_person_id', $("#artModifyForm input[name='update_person_id']").val());
+            $('#modifyModal').modal('hide');
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/saveArticle')}",
+                processData: false,
+                contentType: false,
+                data: formContent,
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 1000)
+                            break;
+                    }
+                }
+
+            })
+        })
+
+        // 显示删除模态框
+        $('.deleArtBtn').on('click', function () {
+            artId = $(this).attr('artId');
+            $('#deleArtModal').modal('show');
+        })
+
+        $('#deleArtModal').on('hidden.bs.modal', function (e) {
+            $("#deleArtForm input[name='adminPsw']").val('')
+        })
+
+        // 删除操作
+        $('#deleArtBtn').on('click', function () {
+            $('#deleArtModal').modal('hide');
+            if ('' == $("#deleArtForm input[name='adminPsw']").val()) {
+                showAlert('alert-danger', '密码不能为空', 1000)
+                return
+            }
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/deleArt')}",
+                dataType: 'json',
+                data: {
+                    adminId: $("#deleArtForm input[name='adminId']").val(),
+                    adminPsw: $("#deleArtForm input[name='adminPsw']").val(),
+                    artId: artId
+                },
+                success: function (data) {
+                    if (1 == data.status) {
+                        showAlert('alert-success', data.msg, 800).then(function () {
+                            window.location.href="{:url('article/goArticleListPage')}";
+                        });
+                    } else {
+                        showAlert('alert-danger', data.msg, 800);
+                    }
+                }
+            })
+        })
+
+        $('.recoverUseBtn').on('click', function () {
+            var artId = $(this).attr('artId');
+            var artStatus = $(this).attr('artStatus');
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/updateArtStatus')}",
+                dataType: 'json',
+                data: {
+                    id: artId,
+                    status: artStatus
+                },
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                    }
+                }
+
+            })
+        })
+
+        $('.stopUseBtn').on('click', function () {
+            var artId = $(this).attr('artId');
+            var artStatus = $(this).attr('artStatus');
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/updateArtStatus')}",
+                dataType: 'json',
+                data: {
+                    id: artId,
+                    status: artStatus
+                },
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                    }
+                }
+
+            })
+        })
+
+        // 草稿
+        $('.submitDraftBtn').on('click', function () {
+            var artId = $(this).attr('artId');
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/updateArtDraft')}",
+                dataType: 'json',
+                data: {
+                    id: artId,
+                    isDraft: 1
+                },
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                    }
+                }
+
+            })
+        })
+
+        // 发表
+        $('.submitNormalBtn').on('click', function () {
+            var artId = $(this).attr('artId');
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/updateArtDraft')}",
+                dataType: 'json',
+                data: {
+                    id: artId,
+                    isDraft: 0
+                },
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                    }
+                }
+
+            })
+        })
+    })
+</script>

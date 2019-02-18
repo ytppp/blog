@@ -1,0 +1,58 @@
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <span style="padding-right: 3px" class="glyphicon glyphicon-home"></span>后台首页</a>
+            </h2>
+        </div>
+        <div class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
+            <ul class="list-group">
+                <li class="list-group-item"><a href="{:url('index/index')}">后台首页</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel-heading" role="tab">
+            <h2 class="panel-title" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseOne">
+                <span style="padding-right: 3px" class="glyphicon glyphicon-th-list"></span>文章管理</a>
+            </h2>
+        </div>
+        <div class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
+            <ul class="list-group">
+                <li class="list-group-item"><a href="{:url('article/goArticleListPage')}">文章列表</a></li>
+                <li class="list-group-item"><a href="{:url('article/goArticleAddPage')}">新增文章</a></li>
+                <li class="list-group-item"><a href="{:url('article/goArticleCateListPage')}">文章栏目管理</a></li>
+                <li class="list-group-item"><a href="{:url('article/goArticleAuthorListPage')}">文章作者管理</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel-heading" role="tab">
+            <h2 class="panel-title" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseOne">
+                <span style="padding-right: 3px" class="glyphicon glyphicon-home"></span>网站管理</a>
+            </h2>
+        </div>
+        <div class="panel-collapse collapse in" role="tabpanel">
+            <ul class="list-group">
+                <li class="list-group-item"><a href="{:url('notice/getNoticeList')}">公告管理</a></li>
+                <li class="list-group-item"><a href="{:url('site/goSiteTimeaxisListPage')}">站点时间轴管理</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel-heading" role="tab">
+            <h2 class="panel-title" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseOne">
+                <span style="padding-right: 3px" class="glyphicon glyphicon-heart"></span>心情管理</a>
+            </h2>
+        </div>
+        <div class="panel-collapse collapse in" role="tabpanel">
+            <ul class="list-group">
+                <li class="list-group-item"><a href="{:url('mood/getMoodList')}">心情管理</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

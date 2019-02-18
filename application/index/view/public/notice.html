@@ -1,0 +1,24 @@
+<div class="panel panel-info" {eq name='$notice' value='0'}style="display: none"{/eq}>
+    <div class="panel-heading">公告</div>
+    <div class="panel-body">
+        {$notice.content|filterArtContent}
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#detailModal">详情</button>
+    </div>
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{$notice.name}</h4>
+            </div>
+            <div class="modal-body">
+                {$notice.content|raw}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>

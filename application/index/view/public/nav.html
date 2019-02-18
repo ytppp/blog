@@ -1,0 +1,79 @@
+<div class="alert fade" style="z-index: 3; position: fixed; top: 200px; left: 50%; width: 400px; margin-left: -200px">
+    <div class="alertMsg text-center"></div>
+</div>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand text-primary" href="#">{$title|default="站点名称"}</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li {eq name='0' value="$Request.param.id" }class="active"{/eq}><a href="{:url('index/index',['id'=>0])}">首页 <span class="sr-only">(current)</span></a></li>
+                <li {eq name='1' value="$Request.param.id" }class="active"{/eq}><a href="{:url('mood/index',['id'=>1])}">心情</a></li>
+                <li {eq name='2' value="$Request.param.id" }class="active"{/eq}><a href="{:url('time/index',['id'=>2])}">站点时间轴</a></li>
+            </ul>
+            <form class="navbar-form navbar-right">
+                <div class="form-group">
+                    <input type="text" name="keywords" class="form-control" placeholder="请输入文章标题">
+                </div>
+                <button id="submitSearch" type="button" class="btn btn-primary">搜索</button>
+            </form>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+
+<script>
+    // 封装警告框方法
+    function showAlert(alertStyle, alertText, alertTime) {
+        $('.alert').css('display', 'block');
+        $('.alert').addClass(alertStyle);
+        $('.alertMsg').text(alertText);
+        $('.alert').removeClass('fade').addClass('in');
+
+        return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+                $('.alert').addClass('fade').removeClass('in');
+                $('.alert').css('display', 'none');
+                resolve();
+            }, alertTime)
+        })
+    }
+    $(function () {
+        $('#submitSearch').on('click', function () {
+            if ('' === $("input[name='keywords']").val()) {
+                showAlert('alert-danger', '标题不能为空', 1000)
+            } else {
+                showAlert('alert-danger', '此功能暂停使用，请谅解', 1000).then(function () {
+                    $("input[name='keywords']").val('')
+                })
+            }
+            /*$.ajax({
+                type: 'post',
+                url: "{:url('index/index')}",
+                dataType: 'json',
+                data: {
+                    keywords: $("input[name='keywords']").val()
+                },
+                success: function (data) {
+                    if (1 == data.status) {
+                        showAlert('alert-success', data.msg, 800).then(function () {
+                            window.location.href="{:url('article/goArticleListPage')}";
+                        });
+                    } else {
+                        showAlert('alert-danger', data.msg, 800);
+                    }
+                }
+            })*/
+        })
+    })
+</script>

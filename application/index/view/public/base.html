@@ -1,0 +1,29 @@
+{include file="public/meta"}
+<!-- 导航 -->
+{include file="public/nav"}
+<div class="container" style="min-height: 86vh">
+    <!-- 公告 -->
+    {block name="notice"}
+    公告部分
+    {/block}
+    <div class="row">
+        <!-- 左边 -->
+        <div class="col-xs-12 col-sm-8 col-md-8">
+            {block name="left"}
+                网站左边部分
+            {/block}
+        </div>
+        <!-- 右边 -->
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            {block name="right"}
+            网站右边部分
+            {/block}
+        </div>
+    </div>
+</div>
+{include file="public/footer"}
+{block name="js"}
+业务相关的脚本
+{/block}
+</body>
+</html>

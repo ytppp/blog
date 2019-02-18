@@ -1,0 +1,318 @@
+{layout name='public:layout'}
+<style>
+    /* table 样式 */
+    table {
+        border-top: 1px solid #ccc;
+        border-left: 1px solid #ccc;
+    }
+    table td,
+    table th {
+        border-bottom: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        padding: 3px 5px;
+    }
+    table th {
+        border-bottom: 2px solid #ccc;
+        text-align: center;
+    }
+
+    /* blockquote 样式 */
+    blockquote {
+        display: block;
+        border-left: 8px solid #d0e5f2;
+        padding: 5px 10px;
+        margin: 10px 0;
+        line-height: 1.4;
+        font-size: 100%;
+        background-color: #f1f1f1;
+    }
+
+    /* code 样式 */
+    code {
+        display: inline-block;
+        *display: inline;
+        *zoom: 1;
+        background-color: #f1f1f1;
+        border-radius: 3px;
+        padding: 3px 5px;
+        margin: 0 3px;
+    }
+    pre code {
+        display: block;
+    }
+
+    /* ul ol 样式 */
+    ul, ol {
+        margin: 10px 0 10px 20px;
+    }
+</style>
+<!-- 警告框 -->
+<div class="alert fade" style="z-index: 3; position: fixed; top: 200px; left: 50%; width: 400px; margin-left: -200px">
+    <div class="alertMsg text-center"></div>
+</div>
+
+<h3 class="text-success bg-success" style="padding: 10px;">新增文章</h3>
+
+<form class="form-horizontal" id="goodsForm" enctype="multipart/form-data">
+    <div class="form-group">
+        <label class="col-sm-1 control-label">标题:</label>
+        <div class="col-sm-5">
+            <input name="title" type="text" class="form-control" placeholder="请输入标题">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-1 control-label">封面:</label>
+        <div class="col-sm-2">
+            <button type="button" id="imageInput" class="btn btn-default">上传封面图片</button>
+            <p id="helpText" class="help-block">最多上传1张图片</p>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-1 control-label">栏目:</label>
+        <div class="col-sm-2">
+            <select id="cate_id" class="form-control">
+                <option value="">请选择栏目</option>
+                {volist name="cateList" id="cate"}
+                <option value="{$cate.id}">{$cate.name}</option>
+                {/volist}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-1 control-label">作者:</label>
+        <div class="col-sm-2">
+            <select id="author_id" class="form-control">
+                <option value="">请选择作者</option>
+                {volist name="authorList" id="author"}
+                <option value="{$author.id}">{$author.name}</option>
+                {/volist}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-1 control-label">内容:</label>
+        <div class="col-sm-10">
+            <div id="editorHead" class="toolbar" style="border: 1px solid #ccc"></div>
+            <div style="padding: 5px 0; color: #ccc"></div>
+            <div id="editorBody" class="text" style="border: 1px solid #ccc; min-height: 600px;">
+                <p class="text-danger">注意：一次最多上传 5 张图片</p>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var E = window.wangEditor;
+            var editor = new E('#editorHead', '#editorBody');
+            // 配置服务器端地址
+            editor.customConfig.uploadImgServer = "{:url('/base/upload')}";
+            // 将图片大小限制为 3M
+            editor.customConfig.uploadImgMaxSize = 3 * 1024 * 1024;
+            // 限制一次最多上传 5 张图片
+            editor.customConfig.uploadImgMaxLength = 5;
+            // 配置编辑区域的 z-index
+            editor.customConfig.zIndex = 1;
+            editor.create();
+        </script>
+    </div>
+    <input type="hidden" name="avatar" value="">
+    <input type="hidden" name="create_person_id" value="{$Think.session.admin_id}">
+    <input type="hidden" name="update_person_id" value="{$Think.session.admin_id}">
+    <div class="form-group">
+        <div class="col-sm-offset-1 col-sm-10">
+            <button type="button" id="clearContentBtn" class="btn btn-default btn-danger">清除内容</button>
+            <button
+                type="button"
+                id="previewtBtn"
+                class="btn btn-default btn-info"
+                data-toggle="modal"
+                data-target="#detailModal"
+            >预览</button>
+            <button type="button" id="submitDraftBtn" class="btn btn-default btn-primary">存为草稿</button>
+            <button type="button" id="submitBtn" class="btn btn-default btn-success">发表文章</button>
+        </div>
+    </div>
+</form>
+
+<!-- 上传图片模态框 -->
+<div class="modal fade" id="imageInputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">上传封面图片</h4>
+            </div>
+            <div class="modal-body">
+                <form enctype="multipart/form-data">
+                    <input id="avatar" type="file" multiple>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 预览模态框 -->
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">预览</h4>
+            </div>
+            <div class="modal-body" id="editorConent"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 封装警告框方法
+    function showAlert(alertStyle, alertText, alertTime) {
+        $('.alert').css('display', 'block');
+        $('.alert').addClass(alertStyle);
+        $('.alertMsg').text(alertText);
+        $('.alert').removeClass('fade').addClass('in');
+
+        return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+                $('.alert').addClass('fade').removeClass('in');
+                $('.alert').css('display', 'none');
+                resolve();
+            }, alertTime)
+        })
+    }
+    
+    // 封装图片上传方法
+    function initFileInput(controlName, uploadUrl) {
+        var control = $('#' + controlName);
+        control.fileinput({
+            language: 'zh', // 语言
+            uploadUrl: uploadUrl, // 上传文件名
+            allowedFileExtensions: ['jpg', 'jpeg', 'png', 'gif'], // 可上传图片后缀名
+            browseClass: 'btn btn-success',
+            previewFileIcon: '<i class="glyphicon glyphicon-file"></i>',
+            maxFileCount: 4, // 最大上传图片数
+            theme: 'explorer',
+            overwriteInitial: false,
+            initialPreviewAsData: true,
+            initialPreview: [],
+            initialPreviewConfig: {
+                caption: controlName,
+                width: '120px',
+                url: uploadUrl,
+                key: 101,
+                success: function () {
+                    
+                }
+            }
+        })
+    }
+
+    $(function () {
+
+        initFileInput('avatar', "{:url('/base/upload')}");
+        // 清除编辑器内容
+        $('#clearContentBtn').on('click', function () {
+            editor.txt.clear();
+        })
+
+        // 预览文章
+        $('#previewtBtn').on('click', function () {
+            $('#editorConent').html(editor.txt.html());
+        })
+
+        // 上传图片弹窗
+        $('#imageInput').on('click', function () {
+            $('#imageInputModal').modal('show');
+        })
+
+        // 监听上传成功后处理
+        $("#avatar").on("fileuploaded", function(event, data, previewId, index) {
+            $('#imageInputModal').modal('hide');
+            if (0 === data.response.errno) {
+                $('#helpText').html(`已上传封面图片,封面图片为：<img height="50" src="${data.response.data}" />`);
+                showAlert('alert-success', '图片上传成功', 1000).then(function () {
+                    $("input[name='avatar']").val(data.response.data);
+                });
+            } else {
+                showAlert('alert-success', '图片上传失败，请检查', 1000);
+            }
+        });
+
+        // 发表文章
+        $('#submitBtn').on('click', function () {
+            var formContent = new FormData();
+            formContent.append('title', $("input[name='title']").val());
+            formContent.append('avatar', $("input[name='avatar']").val());
+            formContent.append('cate_id', $('#cate_id option:selected').val());
+            formContent.append('author_id', $("#author_id option:selected").val());
+            formContent.append('content', editor.txt.html());
+            formContent.append('is_draft', '0');
+            formContent.append('create_person_id', $("input[name='create_person_id']").val());
+            formContent.append('update_person_id', $("input[name='update_person_id']").val());
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/saveArticle')}",
+                processData: false,
+                contentType: false,
+                data: formContent,
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 1000)
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 1000)
+                            break;
+                    }
+                }
+
+            })
+        })
+
+        // 草稿
+        $('#submitDraftBtn').on('click', function () {
+            var formContent = new FormData();
+            formContent.append('title', $("input[name='title']").val());
+            formContent.append('avatar', $("input[name='avatar']").val());
+            formContent.append('cate_id', $('#cate_id option:selected').val());
+            formContent.append('author_id', $("#author_id option:selected").val());
+            formContent.append('content', editor.txt.html());
+            formContent.append('is_draft', '1');
+            formContent.append('create_person_id', $("input[name='create_person_id']").val());
+            formContent.append('update_person_id', $("input[name='update_person_id']").val());
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/saveArticle')}",
+                processData: false,
+                contentType: false,
+                data: formContent,
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 1000)
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 1000)
+                            break;
+                    }
+                }
+
+            })
+        })
+    })
+</script>

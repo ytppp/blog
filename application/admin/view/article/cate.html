@@ -1,0 +1,316 @@
+{layout name="public:layout"}
+
+<!-- 警告框 -->
+<div class="alert fade" style="z-index: 3; position: fixed; top: 200px; left: 50%; width: 400px; margin-left: -200px">
+    <div class="alertMsg text-center"></div>
+</div>
+
+<h3 class="text-success bg-success" style="padding: 10px;">{$title|default="默认标题"}</h3>
+
+<form style="margin-top: 10px;" class="form-inline" id="addArticleCateForm">
+    <div class="form-group">
+        <div class="col-sm-4">
+            <input name="name" type="text" class="form-control" placeholder="请输入想增加的栏目">
+        </div>
+    </div>
+    <input type="hidden" name="create_person_id" value="{$Think.session.admin_id}">
+    <input type="hidden" name="update_person_id" value="{$Think.session.admin_id}">
+    <button type="button" id="addCateBtn" class="btn btn-default btn-success">增加栏目</button>
+</form>
+
+<table style="margin-top: 10px;" class="table table-default table-hover text-center table-bordered">
+    <tr>
+        <td>#</td>
+        <td>栏目名</td>
+        <td>时间</td>
+        <td>状态</td>
+        <td>操作</td>
+    </tr>
+    {volist name="cateList" id="cate" empty="$empty"}
+    <tr>
+        <td>{$cate.id}</td>
+        <td>{$cate.name}</td>
+        <td>{$cate.update_time|date='Y-m-d H:i'}</td>
+        <td>
+            {eq name="$cate.status" value="1"}
+            <span class="text-primary">已启用</span>
+            <button
+                    cateId="{$cate.id}"
+                    cateStatus="0"
+                    class="btn btn-danger btn-xs stopUseBtn">
+                禁用
+            </button>
+            {else/}
+            <span class="text-danger">已禁用</span>
+            <button
+                    cateId="{$cate.id}"
+                    cateStatus="1"
+                    class="btn btn-primary btn-xs recoverUseBtn">
+                启用
+            </button>
+            {/eq}
+        </td>
+        <td>
+            <button
+                    class="btn btn-primary btn-xs modifyCateBtn"
+                    cateObj="{$cate}"
+                    title="修改">
+                <i class="iconfont icon-xiugai"></i>
+            </button>
+            <button
+                    class="btn btn-danger btn-xs deleCateBtn"
+                    cateId="{$cate.id}"
+                    title="删除">
+                <i class="iconfont icon-shanchu"></i>
+            </button>
+        </td>
+    </tr>
+    {/volist}
+</table>
+
+<!-- 修改模态框 -->
+<div class="modal fade" id="modifyCateModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">修改栏目信息</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-inline" id="articleCateForm">
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <input name="name" type="text" class="form-control" placeholder="请输入想增加的栏目">
+                            <button style="margin-top: 5px" type="button" id="modifyCateBtn" class="btn btn-default btn-success">修改</button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="id">
+                    <input type="hidden" name="create_person_id" value="{$Think.session.admin_id}">
+                    <input type="hidden" name="update_person_id" value="{$Think.session.admin_id}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除栏目模态框 -->
+<div id="deleCateModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">删除栏目信息</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    删除将使该栏目信息从数据库中被彻底删除当前且不可恢复
+                </div>
+                <form class="form-horizontal" action="" method="" id="deleCateForm">
+                    <input type="hidden" name="adminId" value="{$Think.session.admin_id}">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">管理员密码:</label>
+                        <div class="col-sm-7">
+                            <input name="adminPsw" type="password" class="form-control" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-6">
+                            <button type="button" class="btn btn-primary" id="deleCateBtn1">确定</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center">
+    {$cateList|raw}
+</div>
+
+<script type="text/javascript">
+    // 封装警告框方法
+    function showAlert(alertStyle, alertText, alertTime) {
+        $('.alert').css('display', 'block');
+        $('.alert').addClass(alertStyle);
+        $('.alertMsg').text(alertText);
+        $('.alert').removeClass('fade').addClass('in');
+
+        return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+                $('.alert').addClass('fade').removeClass('in');
+                $('.alert').css('display', 'none');
+                resolve();
+            }, alertTime)
+        })
+    }
+    $(function () {
+        var cateId = 0;
+        // 新增作者信息
+        $('#addCateBtn').on('click', function () {
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/updateArticleCate')}",
+                dataType: 'json',
+                data: $('#addArticleCateForm').serialize(),
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function() {
+                                window.location.href="{:url('article/goArticleCateListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 1000);
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 1000);
+                            break;
+                    }
+                }
+            })
+        })
+
+        // 信息修改弹窗
+        $('.modifyCateBtn').on('click', function () {
+            var cate = JSON.parse($(this).attr('cateObj'));
+
+            $("#articleCateForm input[name='name']").val(cate.name)
+            $("#articleCateForm input[name='id']").val(cate.id)
+            $("#articleCateForm input[name='create_person_id']").val(cate.create_person_id)
+            $("#articleCateForm input[name='update_person_id']").val(cate.create_person_id)
+
+            $('#modifyCateModal').modal('show');
+        })
+
+        // 提交修改
+        $('#modifyCateBtn').on('click', function () {
+            $('#modifyCateModal').modal('hide');
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/updateArticleCate')}",
+                dataType: 'json',
+                data: $('#articleCateForm').serialize(),
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleCateListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 1000);
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 1000);
+                            break;
+                    }
+                }
+            })
+        })
+
+        // 模态框关闭后重置
+        $('#deleCateModal').on('hidden.bs.modal', function (e) {
+            $("#deleCateForm input[name='adminPsw']").val('')
+        })
+
+        // 显示删除模态框
+        $('.deleCateBtn').on('click', function () {
+            cateId = $(this).attr('cateId');
+            $('#deleCateModal').modal('show');
+        })
+
+        // 删除操作
+        $('#deleCateBtn1').on('click', function () {
+            $('#deleCateModal').modal('hide');
+            if ('' == $("#deleCateForm input[name='adminPsw']").val()) {
+                showAlert('alert-danger', '密码不能为空', 1000)
+                return
+            }
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/deleCate')}",
+                dataType: 'json',
+                data: {
+                    adminId: $("#deleCateForm input[name='adminId']").val(),
+                    adminPsw: $("#deleCateForm input[name='adminPsw']").val(),
+                    cateId: cateId
+                },
+                success: function (data) {
+                    if (1 == data.status) {
+                        showAlert('alert-success', data.msg, 800).then(function () {
+                            window.location.href="{:url('article/goArticleCateListPage')}";
+                        });
+                    } else {
+                        showAlert('alert-danger', data.msg, 800);
+                    }
+                }
+            })
+        })
+
+        $('.recoverUseBtn').on('click', function () {
+            var cateId = $(this).attr('cateId');
+            var cateStatus = $(this).attr('cateStatus');
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/updateCateStatus')}",
+                dataType: 'json',
+                data: {
+                    id: cateId,
+                    status: cateStatus
+                },
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleCateListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                    }
+                }
+
+            })
+        })
+
+        $('.stopUseBtn').on('click', function () {
+            var cateId = $(this).attr('cateId');
+            var cateStatus = $(this).attr('cateStatus');
+            $.ajax({
+                type: 'post',
+                url: "{:url('article/updateCateStatus')}",
+                dataType: 'json',
+                data: {
+                    id: cateId,
+                    status: cateStatus
+                },
+                success: function (data) {
+                    switch (data.status) {
+                        case 1:
+                            showAlert('alert-success', data.msg, 1000).then(function () {
+                                window.location.href="{:url('article/goArticleCateListPage')}";
+                            });
+                            break;
+                        case 0:
+                        case -1:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                        default:
+                            showAlert('alert-danger', data.msg, 2000)
+                            break;
+                    }
+                }
+
+            })
+        })
+    })
+</script>

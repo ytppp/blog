@@ -1,0 +1,50 @@
+{extend name="public/base"}
+
+{block name="notice"}
+{/block}
+
+{block name="left"}
+<ol class="breadcrumb">
+    <li><a href="{:url('index/index')}">首页</a></li>
+    <li class="active">文章：{$art.title}</li>
+</ol>
+<div class="page-header">
+    <h2>{$art.title}</h2>
+    <p class="help-block">
+        作者：{$art.author_id|getArtAuthorName}
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        类型：{$art.cate_id|getArtCateName}
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        阅读量：{$art.pv}
+    </p>
+    <div>
+        {$art.content|raw}
+    </div>
+</div>
+{/block}
+
+{block name="right"}
+<div class="page-header">
+    <h2>{$cateTitle|default="默认标题"}</h2>
+</div>
+<div class="list-group">
+    {volist name="cateList" id="cate" empty="$empty"}
+    <a href="{:url('index/index', ['cateId'=>$cate.id, 'name'=>$cate.name])}" class="list-group-item {eq name='$cate.id' value='$Request.param.cateId' }active{/eq}">
+        {$cate.name}
+    </a>
+    {/volist}
+</div>
+<div class="page-header">
+    <h2>{$authorTitle|default="默认标题"}</h2>
+</div>
+<div class="list-group">
+    {volist name="authorList" id="author" empty="$empty"}
+    <a href="{:url('index/index', ['authorId'=>$author.id, 'name'=>$author.name])}" class="list-group-item {eq name='$author.id' value='$Request.param.authorId' }active{/eq}">
+        {$author.name}
+    </a>
+    {/volist}
+</div>
+{/block}
+
+{block name="js"}
+{/block}

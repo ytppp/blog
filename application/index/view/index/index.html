@@ -1,0 +1,91 @@
+{extend name="public/base"}
+
+{block name="notice"}
+<div class="panel panel-info" {eq name='$notice' value='0'}style="display: none"{/eq}>
+<div class="panel-heading">公告</div>
+<div class="panel-body">
+    {$notice.content|filterArtContent}
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#detailModal">详情</button>
+</div>
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{$notice.name}</h4>
+            </div>
+            <div class="modal-body">
+                {$notice.content|raw}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="left"}
+<div class="page-header">
+    <h1>{$Request.param.name|default="全部文章"}</h1>
+</div>
+<ul class="media-list">
+    {volist name="artList" id="art" empty="$empty"}
+    <li class="media">
+        <div class="media-left">
+            <img height="64" width="64" class="media-object" src="{$art.avatar}" />
+        </div>
+        <div class="media-body">
+            <h4 class="media-heading"><a href="{:url('index/getArtDetail', ['id'=>$art.id])}">{$art.title}</a></h4>
+            <p class="help-block">
+                作者：{$art.author_id|getArtAuthorName}
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                类型：{$art.cate_id|getArtCateName}
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                阅读量：{$art.pv}
+            </p>
+            <div>
+                {$art.content|filterArtContent}
+            </div>
+        </div>
+    </li>
+    {/volist}
+</ul>
+<div style="text-align: center">
+    {$artList|raw}
+</div>
+{/block}
+
+{block name="right"}
+<div class="page-header">
+    <h2>{$cateTitle|default="默认标题"}</h2>
+</div>
+<div class="list-group">
+    <a href="{:url('index/index', ['cateId'=>'-1', 'name'=>'全部文章'])}" class="list-group-item {eq name='-1' value='$Request.param.cateId' }active{/eq}">
+        全部
+    </a>
+    {volist name="cateList" id="cate" empty="$empty"}
+    <a href="{:url('index/index', ['cateId'=>$cate.id, 'name'=>$cate.name])}" class="list-group-item {eq name='$cate.id' value='$Request.param.cateId' }active{/eq}">
+        {$cate.name}
+    </a>
+    {/volist}
+</div>
+<div class="page-header">
+    <h2>{$authorTitle|default="默认标题"}</h2>
+</div>
+<div class="list-group">
+    <a href="{:url('index/index', ['authorId'=>'-1', 'name'=>'全部文章'])}" class="list-group-item {eq name='-1' value='$Request.param.authorId' }active{/eq}">
+        全部
+    </a>
+    {volist name="authorList" id="author" empty="$empty"}
+    <a href="{:url('index/index', ['authorId'=>$author.id, 'name'=>$author.name])}" class="list-group-item {eq name='$author.id' value='$Request.param.authorId' }active{/eq}">
+        {$author.name}
+    </a>
+    {/volist}
+</div>
+{/block}
+
+{block name="js"}
+{/block}

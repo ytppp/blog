@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{$title|default="默认标题"}</title>
+    {load href="https://cdn.bootcss.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css" /}
+    {load href="/static/bootstrap-fileinput/css/fileinput.css"}
+    {load href="/static/bootstrap-fileinput/themes/explorer/theme.css" /}
+    {load href="https://cdn.bootcss.com/jquery/2.2.1/jquery.min.js" /}
+    {load href="/static/bootstrap-fileinput/js/plugins/sortable.js" /}
+    {load href="/static/bootstrap-fileinput/js/fileinput.js" /}
+    {load href="/static/bootstrap-fileinput/js/locales/zh.js" /}
+    {load href="/static/bootstrap-fileinput/themes/explorer/theme.js" /}
+    {load href="https://cdn.bootcss.com/twitter-bootstrap/3.3.7/js/bootstrap.min.js" /}
+    {load href="/static/editor/wangEditor.min.js" /}
+    {load href="//at.alicdn.com/t/font_607490_gmstzjdskdd.css"}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        {include file="public:nav"}
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            {include file="public:left"}
+        </div>
+        <div class="col-md-10">
+            {__CONTENT__}
+        </div>
+    </div>
+</div>
+</body>
+</html>

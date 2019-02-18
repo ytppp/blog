@@ -1,0 +1,40 @@
+<!-- 警告框 -->
+<div class="alert fade" style="z-index: 3; position: fixed; top: 200px; left: 50%; width: 400px; margin-left: -200px">
+    <div class="alertMsg text-center"></div>
+</div>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{:url('index/index')}">博客管理系统</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                {if $Think.session.admin_id}
+                <li><a href="javascript:;">{$Think.session.admin_name}</a></li>
+                {/if}
+                <li>
+                    <a href="{:url('user/logout')}">
+                        <span style="padding-right: 3px" class="glyphicon glyphicon-off"></span>退出
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script>
+    // 封装警告框方法
+    function showAlert(alertStyle, alertText, alertTime) {
+        $('.alert').addClass(alertStyle);
+        $('.alertMsg').text(alertText);
+        $('.alert').removeClass('fade').addClass('in');
+
+        return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+                $('.alert').addClass('fade').removeClass('in');
+                resolve();
+            }, alertTime)
+        })
+    }
+</script>
