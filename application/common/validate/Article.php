@@ -30,6 +30,9 @@ class Article extends Validate
         ],
         'content|内容' => [
             'require' => 'require'
+        ],
+        'url_address|转载地址' => [
+            'url' => 'url'
         ]
     ];
 }

@@ -16,11 +16,14 @@ class User extends Validate
         'name|昵称' => [
             'require'     => 'require',
             'length'      => '1, 10',
-            'chsAlphaNum' => 'chsAlphaNum' // 仅允许使用汉字、字母、数字
+            'alphaDash' => 'alphaDash' // 仅允许使用字母,数字,_,-
         ],
         'mobile|电话' => [
-            'require' => 'require',
             'mobile'  => 'mobile',
+            'unique'  => 'blog_user',
+        ],
+        'email|邮箱' => [
+            'email'  => 'email',
             'unique'  => 'blog_user',
         ]
     ];

@@ -32,20 +32,17 @@ class User extends Base
         $map = [];
         // 自定义验证规则
         $rule = [
+            'email|邮箱' => [
+                'email'  => 'email',
+            ],
             'mobile|手机' => [
-                'require' => 'require',
                 'mobile'  => 'mobile',
             ],
             'password|密码' => [
-                'require'   => 'require',
                 'length'    => '6, 20',
-                'alphaNum' => 'alphaNum', // 仅允许使用字母、数字
+                'alphaDash' => 'alphaDash', // 仅允许使用字母,数字,_,-
             ]
         ];
-
-        if (!Request::isAjax()) {
-            return json(['status' => -1, 'msg' => '请求类型错误']);
-        }
         // 获取数据
         $data = Request::param();
         $res = $this->validate($data, $rule); // 验证
@@ -53,7 +50,7 @@ class User extends Base
             return json(['status' => -1, 'msg' => $res]);
         }
 
-        // 查询条件1
+        // 查询条件
         $map[] = ['password', '=', sha1($data['password'])];
         $map[] = ['mobile', '=', $data['mobile']];
         $userResult = UserModel::where($map)->find();

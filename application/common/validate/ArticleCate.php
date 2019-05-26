@@ -13,11 +13,11 @@ use think\Validate;
 class ArticleCate extends Validate
 {
     protected $rule = [
-        'name|分类名称' => [
+        'name|文章栏目' => [
             'require'     => 'require',
             'length'      => '2, 15',
             'unique'      => 'blog_article_cate',
-            'chsAlpha' => 'chsAlpha' // 仅允许使用汉字、字母
+            'chsAlpha'    => 'chsAlpha' // 仅允许使用汉字、字母
         ]
     ];
 }
