@@ -10,15 +10,15 @@ namespace app\api\controller;
 
 use app\api\controller\Base;
 use think\facade\Request;
-use think\Db;
+use app\common\model\Words as WordsModel;
 
 class Words extends Base
 {
     public function getWordsList()
     {
         $wordsInfo = Request::param();
-        $wordsList = Db::table('blog_words')
-            ->where('type', '=', $wordsInfo['type'])
+        $wordsList = WordsModel::where('type', '=', $wordsInfo['type'])
+            ->order('create_time', 'desc')
             ->select();
         if (!is_null($wordsList)) {
             return json([

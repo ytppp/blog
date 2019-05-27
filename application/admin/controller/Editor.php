@@ -8,7 +8,7 @@
 
 namespace app\admin\controller;
 
-use app\admin\common\controller\Base;
+use app\admin\controller\Base;
 use think\facade\Request;
 use think\Image;
 

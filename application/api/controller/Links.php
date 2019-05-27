@@ -10,13 +10,13 @@ namespace app\api\controller;
 
 use app\api\controller\Base;
 use think\facade\Request;
-use think\Db;
+use app\common\model\Links as LinksModel;
 
 class Links extends Base
 {
     public function getLinksList()
     {
-        $linksList = Db::table('blog_links')->where('status', '=', 1)->select();
+        $linksList = LinksModel::where('status', '=', 1)->select();
         if (!is_null($linksList)) {
             return json([
                 'code'  => 1,
