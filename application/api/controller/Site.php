@@ -11,6 +11,7 @@ namespace app\api\controller;
 use app\admin\controller\Base;
 use think\facade\Request;
 use think\Db;
+use app\common\model\Sitelog as SitelogModel;
 
 class Site extends Base
 {
@@ -25,11 +26,13 @@ class Site extends Base
             ->where('id', '=', 1)
             ->update($siteInfo);
         if ($res) {
+            $this->addSiteLog('更新站点信息成功', 'api/site/updateAllSiteInfo', 1);
             return json([
                 'code'    => 1,
                 'message' => '更新站点所有信息成功'
             ]);
         } else {
+            $this->addSiteLog('更新站点信息失败', 'api/site/updateAllSiteInfo', 0);
             return json([
                 'code'    => -1,
                 'message' => '更新站点所有信息失败,请检查'
@@ -64,6 +67,7 @@ class Site extends Base
             ->where('id', '=', 1)
             ->find();
         if ($siteInfo) {
+            $this->addSiteLog('获取站点信息成功', 'api/site/getSiteInfo', 1);
             return json([
                 'code'  => 1,
                 'message' => '获取站点信息成功',
@@ -73,6 +77,7 @@ class Site extends Base
                 ]
             ]);
         } else {
+            $this->addSiteLog('获取站点信息失败', 'api/site/getSiteInfo', 0);
             return json([
                 'code'    => -1,
                 'message' => '获取站点信息失败,请检查'
@@ -89,11 +94,13 @@ class Site extends Base
         $siteInfo = Request::param();
         $res = Db::table('blog_site')->where('id', '=', 1)->update($siteInfo);
         if ($res) {
+            $this->addSiteLog('更改站点状态成功', 'api/site/changeSiteStatus', 1);
             return json([
                 'code'    => 1,
                 'message' => '更改站点状态成功',
             ]);
         } else {
+            $this->addSiteLog('更改站点状态失败', 'api/site/changeSiteStatus', 0);
             return json([
                 'code'    => -1,
                 'message' => '更改站点状态失败,请检查',
@@ -110,12 +117,14 @@ class Site extends Base
         $siteInfo = Request::param();
         $res = Db::table('blog_site')->field($siteInfo['key'])->where('id', '=', 1)->find();
         if ($res) {
+            $this->addSiteLog('获取'.$siteInfo['key'].'站点状态成功', 'api/site/getSiteStatus', 1);
             return json([
                 'code'    => 1,
                 'message' => '获取站点状态成功',
                 'data'    => $res
             ]);
         } else {
+            $this->addSiteLog('获取'.$siteInfo['key'].'站点状态失败', 'api/site/getSiteStatus', 0);
             return json([
                 'code'    => -1,
                 'message' => '获取站点状态失败,请检查',
@@ -132,14 +141,41 @@ class Site extends Base
         $siteInfo = Request::param();
         $res = Db::table('blog_site')->where('id', '=', 1)->update([$siteInfo['key'] => $siteInfo['value']]);
         if ($res) {
+            $this->addSiteLog('已将'.$siteInfo['key'].'的状态置为'.$siteInfo['value'], 'api/site/setSiteStatus', 1);
             return json([
                 'code'    => 1,
                 'message' => '更改站点状态成功',
             ]);
         } else {
+            $this->addSiteLog('更改名为'.$siteInfo['key'].'站点状态失败', 'api/site/setSiteStatus', 0);
             return json([
                 'code'    => -1,
                 'message' => '更改站点状态失败,请检查',
+            ]);
+        }
+    }
+
+    // 获得站点记录列表
+    public function getSitelogList()
+    {
+        // 全局查询条件
+        $map = [];
+
+        $map[] = ['status', '=', 1];
+        // 获取数据
+        $sitelogList = SitelogModel::where($map)->order('create_time', 'desc')->select();
+        if (!is_null($sitelogList)) {
+            return json([
+                'code'    => 1,
+                'message' => '获取站点记录列表成功',
+                'data'    => [
+                    'sitelog_list' => $sitelogList
+                ]
+            ]);
+        } else {
+            return json([
+                'code'    => -1,
+                'message' => '获取站点记录列表失败,请检查'
             ]);
         }
     }

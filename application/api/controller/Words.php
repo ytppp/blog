@@ -21,6 +21,7 @@ class Words extends Base
             ->order('create_time', 'desc')
             ->select();
         if (!is_null($wordsList)) {
+            $this->addSiteLog('获取blog_words表中'.$wordsInfo['type'].'列表成功', 'api/words/getWordsList', 1);
             return json([
                 'code'  => 1,
                 'message' => '获取列表成功',
@@ -29,6 +30,7 @@ class Words extends Base
                 ]
             ]);
         } else {
+            $this->addSiteLog('获取blog_words表中'.$wordsInfo['type'].'列表失败', 'api/words/getWordsList', 0);
             return json([
                 'code'  => -1,
                 'message' => '获取列表失败,请检查'

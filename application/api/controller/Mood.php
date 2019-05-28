@@ -37,6 +37,7 @@ class Mood extends Base
             ->where($map)
             ->select();
         if (!is_null($moodList)) {
+            $this->addSiteLog('获取心情列表成功', 'api/mood/getMoodList', 1);
             return json([
                 'code'  => 1,
                 'message' => '获取心情列表成功',
@@ -45,6 +46,7 @@ class Mood extends Base
                 ]
             ]);
         } else {
+            $this->addSiteLog('获取心情列表失败', 'api/mood/getMoodList', 0);
             return json([
                 'code'  => -1,
                 'message' => '获取心情列表失败,请检查'
@@ -54,14 +56,16 @@ class Mood extends Base
 
     // 删除心情
     public function deleteMood () {
-        $userInfo = Request::param();
-        $res = MoodModel::where('id', '=', $userInfo['id'])->delete();
+        $moodInfo = Request::param();
+        $res = MoodModel::where('id', '=', $moodInfo['id'])->delete();
         if (1 == $res) {
+            $this->addSiteLog('删除id为'.$moodInfo['id'].'的心情成功', 'api/mood/deleteMood', 1);
             return json([
                 'code'  => 1,
                 'message' => '已删除该心情'
             ]);
         } else {
+            $this->addSiteLog('删除id为'.$moodInfo['id'].'的心情失败', 'api/mood/deleteMood', 0);
             return json([
                 'code'  => -1,
                 'message' => '删除心情失败,请检查'
@@ -77,14 +81,16 @@ class Mood extends Base
         ];
         $res = MoodModel::where('id', '=', $moodInfo['id'])->update($moodInfoUpdate);
         if ($res) {
+            $this->addSiteLog('更改id为'.$moodInfo['id'].'的心情状态成功', 'api/mood/changeMoodStatus', 1);
             return json([
                 'code'    => 1,
                 'message' => '更改心情状态成功',
             ]);
         } else {
+            $this->addSiteLog('更改id为'.$moodInfo['id'].'的心情状态失败', 'api/mood/changeMoodStatus', 0);
             return json([
                 'code'    => -1,
-                'message' => '更改心情失败,请检查',
+                'message' => '更改心情状态失败,请检查',
             ]);
         }
     }
@@ -99,6 +105,7 @@ class Mood extends Base
         $rs = $validate->check($moodInfo);
         // 验证数据
         if (!$rs) {
+            $this->addSiteLog($validate->getError(), 'api/mood/addMood', 0);
             return json([
                 'code'    => -1,
                 'message' => $validate->getError()
@@ -106,9 +113,10 @@ class Mood extends Base
         }
         if ($mood = MoodModel::create($moodInfo)) {
             // 'id, content, position, status, create_time'
+            $this->addSiteLog('增加id为'.$mood->id.'的心情成功', 'api/mood/addMood', 1);
             return json([
                 'code'    => 1,
-                'message' => '增加心情成功',
+                'message' => '增加心情失败',
                 'data'    => [
                     'id'          => $mood->id,
                     'content'     => $mood->content,
@@ -118,6 +126,7 @@ class Mood extends Base
                 ]
             ]);
         } else {
+            $this->addSiteLog('增加心情失败', 'api/mood/addMood', 0);
             return json([
                 'code'    => -1,
                 'message' => '增加心情失败,请检查'

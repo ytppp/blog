@@ -2,20 +2,20 @@
 /**
  * Created by PhpStorm.
  * User: 65100
- * Date: 2019/1/22
- * Time: 20:21
+ * Date: 2019/5/28
+ * Time: 13:02
  */
 
 namespace app\common\model;
 
 use think\Model;
 
-class Timeaxis extends Model
+class Sitelog extends Model
 {
     // 主键
     protected $pk = 'id';
     // 数据表
-    protected $table = 'blog_site_timeaxis';
+    protected $table = 'blog_site_log';
     // 自动时间戳
     protected $autoWriteTimestamp = true;
     protected $createTime = 'create_time'; // 创建时间
@@ -27,5 +27,4 @@ class Timeaxis extends Model
     protected $insert = ['create_time', 'status'=>1];
     // 仅更新的时候有效
     protected $update = ['update_time'];
-
 }

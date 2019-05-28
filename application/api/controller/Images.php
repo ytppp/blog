@@ -25,10 +25,10 @@ class Images extends Base
         $imgInfo = Request::file('avatar');
         // 计算图片的md5散列值
         $md5 = $imgInfo->hash('md5');
-
         $imgObj = Db::table('blog_images')->where(['md5' => $md5])->find();
         // 判断图片是否重复上传
         if (!empty($imgObj)) { // 如果不为空，说明这个图片已经上传了，返回数据库中该图片的信息给前端
+            $this->addSiteLog('从blog_images数据库中查找名为{md5}的图片成功', 'api/images/saveAvatar', 1);
             return json(
                 [
                     'status' => 1,
@@ -56,6 +56,7 @@ class Images extends Base
                     'create_time' => time(),
                 ];
                 if($img_id=Db::name('blog_images')->insertGetId($data)){
+                    $this->addSiteLog('上传名为{$info->getSaveName()}的图片成功', 'api/images/saveAvatar', 1);
                     return json(
                         [
                             'status' => 1,
@@ -67,6 +68,7 @@ class Images extends Base
                         ]
                     );
                 }else{
+                    $this->addSiteLog('上传名为{$info->getSaveName()}的图片失败', 'api/images/saveAvatar', 0);
                     return json(
                         [
                             'status' => -1,
@@ -75,6 +77,7 @@ class Images extends Base
                     );
                 }
             } else {
+                $this->addSiteLog('上传图片失败', 'api/images/saveAvatar', 0);
                 return json(
                     [
                         'status' => -1,
@@ -95,13 +98,13 @@ class Images extends Base
         $images = []; // 保存图片在服务器上的地址
         $errors = []; // 保存错误信息
         $files = Request::file();
-
         foreach ($files as $file) {
             // 计算图片的md5散列值
             $md5 = $file->hash('md5');
             $imgObj = Db::table('blog_images')->where(['md5' => $md5])->find();
             // 判断图片是否重复上传
             if (!empty($imgObj)) {
+                $this->addSiteLog('从blog_images数据库中查找名为{md5}的图片成功', 'api/images/upload', 1);
                 $path = 'http://'.$_SERVER['SERVER_NAME'].$imgObj['path'];
                 array_push($images, $path);
             } else {
@@ -121,9 +124,11 @@ class Images extends Base
                         'create_time' => time(),
                     ];
                     if($img_id = Db::name('blog_images')->insertGetId($data)){
-                        $path = 'http://'.$_SERVER['SERVER_NAME'].'/uploads/'.$info->getSaveName();
+                        $this->addSiteLog('上传名为{$info->getSaeName()}的图片成功', 'api/images/upload', 1);
+                        $path = 'http://'.$_SERVER['SERVER_NAME'].'/uploads/'.$info->getSaeName();
                         array_push($images, $path);
                     } else {
+                        $this->addSiteLog('上传图片失败', 'api/images/upload', 0);
                         array_push($errors, '上传图片失败');
                     }
                 } else {

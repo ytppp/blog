@@ -30,20 +30,25 @@ class Article extends Base
         $rs = $validate->check($artInfo);
         // 验证数据
         if (!$rs) {
+            $this->addSiteLog($validate->getError(), 0);
             return json(['status' => -1, 'message' => $validate->getError()]);
         }
         // 验证数据
         if (isset($artInfo['id']) && '' != $artInfo['id']) {
             $res = ArticleModel::where('id', '=', $artInfo['id'])->update($artInfo);
             if ($res) {
+                $this->addSiteLog('修改文章成功', 1);
                 return json(['code'=>1, 'message'=>'修改文章成功']);
             } else {
+                $this->addSiteLog('文章未修改或修改文章失败', 0);
                 return json(['code'=>-1, 'message'=>'文章未修改或修改文章失败，请重试']);
             }
         } else {
             if (ArticleModel::create($artInfo)) {
+                $this->addSiteLog('发布文章成功', 1);
                 return json(['code'=>1, 'message'=>'发布文章成功']);
             } else {
+                $this->addSiteLog('发布文章失败', -1);
                 return json(['code'=>-1, 'message'=>'发布文章失败，请检查']);
             }
         }
@@ -57,12 +62,14 @@ class Article extends Base
         $id = Request::param('id');
         $art = ArticleModel::where('id', '=', $id)->find();
         if ($art) {
+            $this->addSiteLog('获取文章详情成功', 1);
             return json([
                 'code'  => 1,
                 'message' => '获取文章详情成功',
                 'data'    => $art
             ]);
         } else {
+            $this->addSiteLog('获取文章详情失败', 0);
             return json([
                 'code'  => -1,
                 'message' => '获取文章详情失败'
@@ -117,6 +124,7 @@ class Article extends Base
             unset($art->article_cate);
         }
         if (!is_null($artList)) {
+            $this->addSiteLog('管理员获取文章列表成功', 'api/article/getArticleList', 1);
             return json([
                 'code'  => 1,
                 'message' => '获取文章列表成功',
@@ -125,6 +133,7 @@ class Article extends Base
                 ]
             ]);
         } else {
+            $this->addSiteLog('管理员获取文章列表失败', 'api/article/getArticleList', 0);
             return json([
                 'code'  => -1,
                 'message' => '获取文章列表失败'
@@ -146,24 +155,27 @@ class Article extends Base
         $rs = $validate->check($cateInfo);
         // 验证数据
         if (!$rs) {
+            $this->addSiteLog('$validate->getError()', 'api/article/addArticleCate', 0);
             return json([
                 'code'    => -1,
                 'message' => $validate->getError()
             ]);
         }
         if ($cate = CateModel::create($cateInfo)) {
+            $this->addSiteLog('增加栏目成功', 'api/article/addArticleCate', 1);
             return json([
                 'code'    => 1,
-                'message' => '增加栏目信息成功',
+                'message' => '增加栏目成功',
                 'data'    => [
                     'id' => $cate->id,
                     'name' => $cate->name
                 ]
             ]);
         } else {
+            $this->addSiteLog('增加栏目失败', 'api/article/addArticleCate', 0);
             return json([
                 'code'    => -1,
-                'message' => '增加栏目信息失败'
+                'message' => '增加栏目失败'
             ]);
         }
     }
@@ -177,11 +189,13 @@ class Article extends Base
         $data = Request::param();
         $res = CateModel::where('id', '=', $data['cateId'])->delete();
         if (1 == $res) {
+            $this->addSiteLog('栏目信息删除成功', 'api/article/deleteArticleCate', 1);
             return json([
                 'code'  => 1,
                 'message' => '已删除该栏目'
             ]);
         } else {
+            $this->addSiteLog('删除栏目信息失败', 'api/article/deleteArticleCate', 0);
             return json([
                 'code'  => -1,
                 'message' => '删除栏目失败,请检查'
@@ -198,13 +212,22 @@ class Article extends Base
         // 获取数据
         $cateList = CateModel::field('id, name')
             ->select();
-        return json([
-            'code'  => 1,
-            'message' => '获取栏目列表成功',
-            'data'    => [
-                'cate_list' => $cateList
-            ]
-        ]);
+        if (!is_null($cateList)) {
+            $this->addSiteLog('获取栏目列表成功', 'api/article/getArticleCateList',  1);
+            return json([
+                'code'  => 1,
+                'message' => '获取栏目列表成功',
+                'data'    => [
+                    'cate_list' => $cateList
+                ]
+            ]);
+        } else {
+            $this->addSiteLog('获取栏目列表失败', 'api/article/getArticleCateList', 0);
+            return json([
+                'code'  => 0,
+                'message' => '获取栏目列表失败'
+            ]);
+        }
     }
 
     /**
@@ -216,11 +239,13 @@ class Article extends Base
         $data = Request::param();
         $res = ArticleModel::where('id', '=', $data['id'])->delete();
         if (1 == $res) {
+            $this->addSiteLog('删除文章信息成功', 'api/article/deleteArticle', 1);
             return json([
                 'code'  => 1,
                 'message' => '已删除该文章'
             ]);
         } else {
+            $this->addSiteLog('删除文章信息失败', 'api/article/deleteArticle', 0);
             return json([
                 'code'  => -1,
                 'message' => '删除文章失败,请检查'
@@ -239,11 +264,13 @@ class Article extends Base
         ];
         $res = ArticleModel::where('id', '=', $articleInfo['id'])->update($articleInfoUpdate);
         if ($res) {
+            $this->addSiteLog('更改文章状态成功', 'api/article/changeArticleStatus', 1);
             return json([
                 'code'    => 1,
                 'message' => '更改文章状态成功',
             ]);
         } else {
+            $this->addSiteLog('更改文章状态失败', 'api/article/changeArticleStatus', 0);
             return json([
                 'code'    => -1,
                 'message' => '更改文章状态失败,请检查',
@@ -267,12 +294,22 @@ class Article extends Base
                 'num'  => $num
             ]);
         }
-        return json([
-            'code'    => 1,
-            'message' => '获取每种分类下的文章数目成功',
-            'data'    => [
-                'cate_article_obj' => $cateNumInfo
-            ]
-        ]);
+        if (!is_null($cateNumInfo)) {
+            $this->addSiteLog('获取文章分类下的文章数目成功', 'api/article/getArticleNumByCate', 1);
+            return json([
+                'code'    => 1,
+                'message' => '获取每种分类下的文章数目成功',
+                'data'    => [
+                    'cate_article_obj' => $cateNumInfo
+                ]
+            ]);
+        } else {
+            $this->addSiteLog('获取文章分类下的文章数目失败', 'api/article/getArticleNumByCate', 1);
+            return json([
+                'code'    => 1,
+                'message' => '获取每种分类下的文章数目失败'
+            ]);
+        }
+
     }
 }

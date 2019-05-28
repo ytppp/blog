@@ -26,6 +26,7 @@ class Timeaxis extends Base
             ->where($map)
             ->select();
         if (!is_null($timeaxisList)) {
+            $this->addSiteLog('获取时间轴列表成功', 'api/timeaxis/getTimeaxisList', 1);
             return json([
                 'code'  => 1,
                 'message' => '获取时间轴列表成功',
@@ -34,6 +35,7 @@ class Timeaxis extends Base
                 ]
             ]);
         } else {
+            $this->addSiteLog('获取时间轴列表失败', 'api/timeaxis/getTimeaxisList', 1);
             return json([
                 'code'  => -1,
                 'message' => '获取时间轴列表失败,请检查'
@@ -47,6 +49,7 @@ class Timeaxis extends Base
         $timeaxisInfo = Request::param();
 
         if ($timeaxis = TimeaxisModel::create($timeaxisInfo)) {
+            $this->addSiteLog('新增id为'.$timeaxis->id.'内容为'.$timeaxis->content.'的站点记录', 'api/timeaxis/addTimeaxis', 1);
             return json([
                 'code'    => 1,
                 'message' => '增加站点记录成功',
@@ -57,6 +60,7 @@ class Timeaxis extends Base
                 ]
             ]);
         } else {
+            $this->addSiteLog('增加站点记录失败', 'api/timeaxis/addTimeaxis', 0);
             return json([
                 'code'    => -1,
                 'message' => '增加站点记录失败,请检查'
@@ -68,11 +72,13 @@ class Timeaxis extends Base
         $timeaxisId = Request::param('id');
         $res = TimeaxisModel::where('id', '=', $timeaxisId)->delete();
         if (1 == $res) {
+            $this->addSiteLog('删除站点记录成功', 'api/timeaxis/deleteTimeaxis', 1);
             return json([
                 'code'  => 1,
                 'message' => '已删除该站点记录'
             ]);
         } else {
+            $this->addSiteLog('删除站点记录失败', 'api/timeaxis/deleteTimeaxis', 0);
             return json([
                 'code'  => -1,
                 'message' => '删除站点记录失败,请检查'

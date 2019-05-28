@@ -27,17 +27,20 @@ class User extends Base
         $rs = $validate->check($userInfoData);
         // 验证数据
         if (!$rs) {
+            $this->addSiteLog($validate->getError(), 'api/user/handleUserReg', 0);
             return json(['code' => -1, 'message' => $validate->getError()]);
         }
 
         if ($userInfo = UserModel::create($userInfoData)) {
             $result = UserModel::get($userInfo->id);
+            $this->addSiteLog('id为'.$result->id.'姓名为'.$result->name.'的用户注册成功', 'api/user/handleUserReg', 1);
             UserModel::where('id', '=', $result->id)->update(['is_login'=>1]);
             Session::set('user_id', $result->id);
             Session::set('user_name', $result->name);
             Session::set('user_avatar', $result->avatar);
             return json(['code'=>1, 'message'=>'注册成功']);
         } else {
+            $this->addSiteLog('用户注册失败', 'api/user/handleUserReg', 0);
             return json(['code' => -1, 'message' => '注册失败，请检查']);
         }
     }
@@ -72,6 +75,7 @@ class User extends Base
         $userResult = UserModel::where($map)->find();
         unset($userResult['password']);
         if (!is_null($userResult)) {
+            $this->addSiteLog('email为'.$data['email'].'的用户已登录', 'api/user/checkUserLogin', 1);
             UserModel::where('id', '=', $userResult['id'])->update(['is_login'=>1]);
             Session::set('admin_id', $userResult['id']);
             return json([
@@ -80,6 +84,7 @@ class User extends Base
                 'user_info' => $userResult
             ]);
         } else {
+            $this->addSiteLog('email为'.$data['email'].'的用户登录失败', 'api/user/checkUserLogin', 0);
             return json(['code' => -1, 'message' => '账号或密码错误，请重新登录']);
         }
     }
@@ -111,6 +116,7 @@ class User extends Base
         // 获取数据
         $userList = UserModel::where($map)->order('create_time', 'desc')->select();
         if (!is_null($userList)) {
+            $this->addSiteLog('获取用户列表成功', 'api/user/getUserList', 1);
             return json([
                 'code'  => 1,
                 'message' => '获取用户列表成功',
@@ -119,6 +125,7 @@ class User extends Base
                 ]
             ]);
         } else {
+            $this->addSiteLog('获取用户列表失败', 'api/user/getUserList', 0);
             return json([
                 'code'  => -1,
                 'message' => '获取用户列表失败,请检查'
@@ -134,11 +141,13 @@ class User extends Base
         ];
         $res = UserModel::where('id', '=', $userInfo['id'])->update($userInfoUpdate);
         if ($res) {
+            $this->addSiteLog('更改blog_user表中id='.$userInfo['id'].'的用户的'.$userInfo['key'].'状态='.$userInfo['value'], 'api/user/changeUserStatus', 1);
             return json([
                 'code'    => 1,
                 'message' => '更改用户状态成功',
             ]);
         } else {
+            $this->addSiteLog('更改blog_user表中id='.$userInfo['id'].'的用户的'.$userInfo['key'].'状态失败', 'api/user/changeUserStatus', 0);
             return json([
                 'code'    => -1,
                 'message' => '更改用户状态失败,请检查',
@@ -151,11 +160,13 @@ class User extends Base
         $userInfo = Request::param();
         $res = UserModel::where('id', '=', $userInfo['id'])->delete();
         if (1 == $res) {
+            $this->addSiteLog('已删除id为'.$userInfo['id'].'的用户', 'api/user/deleteUser', 1);
             return json([
                 'code'  => 1,
                 'message' => '已删除该用户'
             ]);
         } else {
+            $this->addSiteLog('删除id为'.$userInfo['id'].'的用户失败', 'api/user/deleteUser', 0);
             return json([
                 'code'  => -1,
                 'message' => '删除用户失败,请检查'
