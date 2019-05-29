@@ -59,7 +59,7 @@ class User extends Base
                 'email'  => 'email',
             ],
             'password|密码' => [
-                'length'    => '6, 20',
+                'length'    => '6, 16',
                 'alphaDash' => 'alphaDash', // 仅允许使用字母,数字,_,-
             ]
         ];
@@ -171,6 +171,27 @@ class User extends Base
                 'code'  => -1,
                 'message' => '删除用户失败,请检查'
             ]);
+        }
+    }
+
+    public function modifyAdminPsw()
+    {
+        $userInfo = Request::param();
+        if (isset($userInfo['password']) && '' != $userInfo['password']) {
+            $userInfo['password'] = sha1($userInfo['password']);
+            $res = UserModel::where('id', '=', $userInfo['id'])->update($userInfo);
+            if ($res) {
+                return json([
+                    'code'    => 1,
+                    'message' => '修改密码成功'
+                ]);
+            } else {
+                $this->addSiteLog('修改id='.$userInfo['id'].'的管理员的密码失败', 'api/admin/modifyAdminPsw', 0);
+                return json([
+                    'code'    => -1,
+                    'message' => '修改密码失败，请重试'
+                ]);
+            }
         }
     }
 }

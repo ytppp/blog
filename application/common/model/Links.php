@@ -20,7 +20,7 @@ class Links extends Model
     protected $autoWriteTimestamp = true;
     protected $createTime = 'create_time'; // 创建时间
     protected $updateTime = 'update_time'; // 更新时间
-    protected $dateFormat = 'Y年m月d日';
+    protected $dateFormat = 'Y-m-d h:m';
 
     // 开启自动设置
     protected $auto = []; // 无论是新增还是更新都要设置的字段

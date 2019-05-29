@@ -30,25 +30,25 @@ class Article extends Base
         $rs = $validate->check($artInfo);
         // 验证数据
         if (!$rs) {
-            $this->addSiteLog($validate->getError(), 0);
+            $this->addSiteLog($validate->getError(), 'api/article/saveArticle', 0);
             return json(['status' => -1, 'message' => $validate->getError()]);
         }
         // 验证数据
         if (isset($artInfo['id']) && '' != $artInfo['id']) {
             $res = ArticleModel::where('id', '=', $artInfo['id'])->update($artInfo);
             if ($res) {
-                $this->addSiteLog('修改文章成功', 1);
+                $this->addSiteLog('修改文章成功', 'api/article/saveArticle', 1);
                 return json(['code'=>1, 'message'=>'修改文章成功']);
             } else {
-                $this->addSiteLog('文章未修改或修改文章失败', 0);
+                $this->addSiteLog('文章未修改或修改文章失败', 'api/article/saveArticle', 0);
                 return json(['code'=>-1, 'message'=>'文章未修改或修改文章失败，请重试']);
             }
         } else {
             if (ArticleModel::create($artInfo)) {
-                $this->addSiteLog('发布文章成功', 1);
+                $this->addSiteLog('发布文章成功', 'api/article/saveArticle', 1);
                 return json(['code'=>1, 'message'=>'发布文章成功']);
             } else {
-                $this->addSiteLog('发布文章失败', -1);
+                $this->addSiteLog('发布文章失败', 'api/article/saveArticle', -1);
                 return json(['code'=>-1, 'message'=>'发布文章失败，请检查']);
             }
         }
@@ -62,14 +62,14 @@ class Article extends Base
         $id = Request::param('id');
         $art = ArticleModel::where('id', '=', $id)->find();
         if ($art) {
-            $this->addSiteLog('获取文章详情成功', 1);
+            $this->addSiteLog('获取文章详情成功', 'api/article/getArticleDetail', 1);
             return json([
                 'code'  => 1,
                 'message' => '获取文章详情成功',
                 'data'    => $art
             ]);
         } else {
-            $this->addSiteLog('获取文章详情失败', 0);
+            $this->addSiteLog('获取文章详情失败', 'api/article/getArticleDetail', 0);
             return json([
                 'code'  => -1,
                 'message' => '获取文章详情失败'

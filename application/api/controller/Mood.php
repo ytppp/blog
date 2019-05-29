@@ -20,10 +20,10 @@ class Mood extends Base
     {
         // 全局查询条件
         $map = [];
-        $map[] = ['type', '=', 1];
 
-        $status = Request::param('status');
-
+        $wordsInfo = Request::param();
+        $status = $wordsInfo['status'];
+        $map[] = ['type', '=', $wordsInfo['type']];
         // 封装查询条件
         if ('' != $status) {
             if (1 == $status) {
@@ -33,23 +33,23 @@ class Mood extends Base
             }
         }
         // 获取数据
-        $moodList = MoodModel::field('id, content, position, status, create_time')
+        $wordsList = MoodModel::field('id, content, position, status, create_time')
             ->where($map)
+            ->order('create_time', 'desc')
             ->select();
-        if (!is_null($moodList)) {
-            $this->addSiteLog('获取心情列表成功', 'api/mood/getMoodList', 1);
+        if (!is_null($wordsList)) {
             return json([
                 'code'  => 1,
-                'message' => '获取心情列表成功',
+                'message' => '获取列表成功',
                 'data'    => [
-                    'mood_list' => $moodList
+                    'words_list' => $wordsList
                 ]
             ]);
         } else {
-            $this->addSiteLog('获取心情列表失败', 'api/mood/getMoodList', 0);
+            $this->addSiteLog('获取blog_words表中 type = 1 的列表失败', 'api/mood/getMoodList', 0);
             return json([
                 'code'  => -1,
-                'message' => '获取心情列表失败,请检查'
+                'message' => '获取列表失败,请检查'
             ]);
         }
     }
@@ -59,13 +59,12 @@ class Mood extends Base
         $moodInfo = Request::param();
         $res = MoodModel::where('id', '=', $moodInfo['id'])->delete();
         if (1 == $res) {
-            $this->addSiteLog('删除id为'.$moodInfo['id'].'的心情成功', 'api/mood/deleteMood', 1);
             return json([
                 'code'  => 1,
                 'message' => '已删除该心情'
             ]);
         } else {
-            $this->addSiteLog('删除id为'.$moodInfo['id'].'的心情失败', 'api/mood/deleteMood', 0);
+            $this->addSiteLog('删除blog_words表中id='.$moodInfo['id'].'的数据项失败', 'api/mood/deleteMood', 0);
             return json([
                 'code'  => -1,
                 'message' => '删除心情失败,请检查'
@@ -81,13 +80,12 @@ class Mood extends Base
         ];
         $res = MoodModel::where('id', '=', $moodInfo['id'])->update($moodInfoUpdate);
         if ($res) {
-            $this->addSiteLog('更改id为'.$moodInfo['id'].'的心情状态成功', 'api/mood/changeMoodStatus', 1);
             return json([
                 'code'    => 1,
                 'message' => '更改心情状态成功',
             ]);
         } else {
-            $this->addSiteLog('更改id为'.$moodInfo['id'].'的心情状态失败', 'api/mood/changeMoodStatus', 0);
+            $this->addSiteLog('更改blog_words表中id='.$moodInfo['id'].'的数据项失败', 'api/mood/changeMoodStatus', 0);
             return json([
                 'code'    => -1,
                 'message' => '更改心情状态失败,请检查',
@@ -112,11 +110,9 @@ class Mood extends Base
             ]);
         }
         if ($mood = MoodModel::create($moodInfo)) {
-            // 'id, content, position, status, create_time'
-            $this->addSiteLog('增加id为'.$mood->id.'的心情成功', 'api/mood/addMood', 1);
             return json([
                 'code'    => 1,
-                'message' => '增加心情失败',
+                'message' => '增加心情成功',
                 'data'    => [
                     'id'          => $mood->id,
                     'content'     => $mood->content,

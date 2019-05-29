@@ -8,10 +8,11 @@
 
 namespace app\api\controller;
 
-use app\admin\controller\Base;
+use app\api\controller\Base;
 use think\facade\Request;
 use think\Db;
 use app\common\model\Sitelog as SitelogModel;
+use app\common\model\SiteAbout as SiteAboutModel;
 
 class Site extends Base
 {
@@ -141,13 +142,12 @@ class Site extends Base
         $siteInfo = Request::param();
         $res = Db::table('blog_site')->where('id', '=', 1)->update([$siteInfo['key'] => $siteInfo['value']]);
         if ($res) {
-            $this->addSiteLog('已将'.$siteInfo['key'].'的状态置为'.$siteInfo['value'], 'api/site/setSiteStatus', 1);
             return json([
                 'code'    => 1,
                 'message' => '更改站点状态成功',
             ]);
         } else {
-            $this->addSiteLog('更改名为'.$siteInfo['key'].'站点状态失败', 'api/site/setSiteStatus', 0);
+            $this->addSiteLog('更改 name = '.$siteInfo['key'].' 站点状态失败', 'api/site/setSiteStatus', 0);
             return json([
                 'code'    => -1,
                 'message' => '更改站点状态失败,请检查',
@@ -176,6 +176,53 @@ class Site extends Base
             return json([
                 'code'    => -1,
                 'message' => '获取站点记录列表失败,请检查'
+            ]);
+        }
+    }
+
+    // 获得站点关于信息
+    public function getSiteAboutInfo()
+    {
+        // 全局查询条件
+        $map = [];
+
+        $map[] = ['status', '=', 1];
+        $map[] = ['id', '=', 1];
+        // 获取数据
+        $siteAboutObj = SiteAboutModel::where($map)->find();
+        if (!is_null($siteAboutObj)) {
+            return json([
+                'code'    => 1,
+                'message' => '获取站点关于信息成功',
+                'data'    => [
+                    'site_about_obj' => $siteAboutObj
+                ]
+            ]);
+        } else {
+            $this->addSiteLog('获取 id = 1 的站点关于信息失败', 'api/site/getSiteAboutInfo', 0);
+            return json([
+                'code'    => -1,
+                'message' => '获取站点关于信息失败,请检查'
+            ]);
+        }
+    }
+
+    // 储存站点关注信息
+    public function saveSiteAboutInfo()
+    {
+        $siteAboutInfo = Request::param();
+        $res = SiteAboutModel::where('id', '=', $siteAboutInfo['id'])->update($siteAboutInfo);
+        if ($res) {
+            $this->addSiteLog('更改站点关于信息成功', 'api/site/saveSiteAboutInfo', 1);
+            return json([
+                'code'    => 1,
+                'message' => '更改站点关于信息成功',
+            ]);
+        } else {
+            $this->addSiteLog('更改站点关于信息失败', 'api/site/saveSiteAboutInfo', 0);
+            return json([
+                'code'    => -1,
+                'message' => '更改站点关于信息失败,请检查',
             ]);
         }
     }
