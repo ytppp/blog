@@ -25,7 +25,7 @@ class Mood extends Model
     // 开启自动设置
     protected $auto = []; // 无论是新增还是更新都要设置的字段
     // 仅新增的有效
-    protected $insert = ['create_time'];
+    protected $insert = ['create_time', 'status' => 1];
     // 仅更新的时候有效
     protected $update = ['update_time'];
 

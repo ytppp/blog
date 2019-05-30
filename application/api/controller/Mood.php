@@ -22,18 +22,20 @@ class Mood extends Base
         $map = [];
 
         $wordsInfo = Request::param();
-        $status = $wordsInfo['status'];
-        $map[] = ['type', '=', $wordsInfo['type']];
-        // 封装查询条件
-        if ('' != $status) {
-            if (1 == $status) {
-                $map[] = ['status', '=', 1];
-            } else if (0 == $status) {
-                $map[] = ['status', '=', 0];
+        if (in_array('status', $wordsInfo)) {
+            $status = $wordsInfo['status'];
+            if ('' != $status) {
+                if (1 == $status) {
+                    $map[] = ['status', '=', 1];
+                } else if (0 == $status) {
+                    $map[] = ['status', '=', 0];
+                }
             }
         }
+        $map[] = ['type', '=', $wordsInfo['type']];
+
         // 获取数据
-        $wordsList = MoodModel::field('id, content, position, status, create_time')
+        $wordsList = MoodModel::field('id, user_id, content, position, status, create_time')
             ->where($map)
             ->order('create_time', 'desc')
             ->select();

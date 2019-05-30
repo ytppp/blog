@@ -13,9 +13,8 @@ use think\Validate;
 class Mood extends Validate
 {
     protected $rule = [
-        'content|心情' => [
-            'require'     => 'require',
-            'unique'      => 'blog_words',
+        'content|内容' => [
+            'require' => 'require'
         ],
     ];
 }

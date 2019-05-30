@@ -41,7 +41,7 @@ class Article extends Model
     // 仅更新的时候有效
     protected $update = ['update_time'];
 
-    protected function getStatusAttr($value, $data)
+    /*protected function getStatusAttr($value, $data)
     {
         $arr = [0 => '私密', 1 => '公开'];
         return $arr[$data['status']];
@@ -63,7 +63,7 @@ class Article extends Model
     {
         $arr = [0 => '非热门', 1 => '热门'];
         return $arr[$data['is_hot']];
-    }
+    }*/
 
     // 关联ArticleCate模型
     public function articleCate()

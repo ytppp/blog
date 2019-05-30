@@ -174,6 +174,7 @@ class User extends Base
         }
     }
 
+    // 修改管理员密码
     public function modifyAdminPsw()
     {
         $userInfo = Request::param();
@@ -194,4 +195,6 @@ class User extends Base
             }
         }
     }
+
+    // 获取管理员信息
 }

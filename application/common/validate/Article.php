@@ -17,7 +17,6 @@ class Article extends Validate
             'require'     => 'require',
             'length'      => '2, 30',
             'unique'      => 'blog_article',
-            'chsAlphaNum' => 'chsAlphaNum' // 仅允许使用汉字、字母
         ],
         'avatar|封面图片' => [
             'require' => 'require',
